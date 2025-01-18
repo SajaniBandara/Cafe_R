@@ -28,7 +28,7 @@ export default function FoodPage() {
                 <div className={classes.container}>
                     <img
                         className={classes.image}
-                        src={food.imageUrl ? `/foods/${food.imageUrl}` : '/default-image.jpg'} // Fallback to a default image
+                        src={food.imageUrl ? `${food.imageUrl}` : '/default-image.jpg'} // Fallback to a default image
                         alt={food.name || 'Food item'} // Fallback alt text
                     />
                     <div className={classes.details}>

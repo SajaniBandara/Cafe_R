@@ -3,6 +3,14 @@ import { sample_users } from '../data.js';
 import jwt from 'jsonwebtoken';
 const router = Router();
 import { BAD_REQUEST } from '../contants/httpStatus.js';
+import { UserModel } from '../models/user.model.js';
+import handler from 'express-async-handler';
+import bcrypt from 'bcryptjs';
+const PASSWORD_HASH_SALT_ROUNDS = 10;
+
+
+
+
 router.post('/login', (req, res) => {
     const { email, password } = req.body;
     const user = sample_users.find(
@@ -14,6 +22,35 @@ router.post('/login', (req, res) => {
     }
     res.status(BAD_REQUEST).send('Username or password is invalid');
 });
+
+router.post('/register',
+    handler(async (req, res) => {
+        const { name, email, password, address } = req.body;
+
+        const user = await UserModel.findOne({ email });
+
+        if (user) {
+            res.status(BAD_REQUEST).send('User already exists, please login!');
+            return;
+        }
+
+        const hashedPassword = await bcrypt.hash(
+            password,
+            PASSWORD_HASH_SALT_ROUNDS
+        );
+
+        const newUser = {
+            name,
+            email: email.toLowerCase(),
+            password: hashedPassword,
+            address,
+        };
+
+        const result = await UserModel.create(newUser);
+        res.send(generateTokenResponse(result));
+    })
+);
+
 const generateTokenResponse = user => {
     const token = jwt.sign(
         {
@@ -21,7 +58,7 @@ const generateTokenResponse = user => {
             email: user.email,
             isAdmin: user.isAdmin,
         },
-        'SomeRandomText',
+        process.env.JWT_SECRET,
         {
             expiresIn: '30d',
         }
