@@ -4,7 +4,7 @@ import { FoodModel } from '../models/food.model.js';
 import { sample_users } from '../data.js';
 import { sample_foods } from '../data.js';
 import bcrypt from 'bcryptjs';
-const PASSWORD_HASH_SALT_ROUNDS = 10;
+const PASSWORD_HASH_SALT_ROUNDS = 10; // number of time to hash
 set('strictQuery', true);
 export const dbconnect = async () => {
     try {
@@ -21,11 +21,11 @@ export const dbconnect = async () => {
 };
 async function seedUsers() {
     const usersCount = await UserModel.countDocuments();
-    if (usersCount > 0) {
+    if (usersCount > 0) { // check if seed is already done
         console.log('Users seed is already done!');
         return;
     }
-    for (let user of sample_users) {
+    for (let user of sample_users) { // otherwise we look through all sample users that coming from data.js
         user.password = await bcrypt.hash(user.password, PASSWORD_HASH_SALT_ROUNDS);
         await UserModel.create(user);
     }
