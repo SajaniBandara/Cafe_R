@@ -11,6 +11,7 @@ import Title from '../Title/Title';
 import Input from '../Input/Input';
 import Button from '../Button/Button';
 import OrderItemsList from '../OrderItems/OrderItemsList';
+import Map from '../Map/Map';
 
 export default function CheckoutPage() {
 
@@ -25,7 +26,7 @@ export default function CheckoutPage() {
 
     const submit = async data => {
         if (!order.addressLatLng) {
-            toast.warning('Please select your address on the map');
+            toast.warning('Please select your Location on the map');
             return;
 
         }
@@ -60,6 +61,14 @@ export default function CheckoutPage() {
                 </div>
                 <div>
                     <Title title="Choose Your Location" fontSize="1.6rem" />
+                    <Map
+                        location={order.addressLatLng}
+                        onChange={latlng => {
+                            console.log(latlng);
+                            setOrder({ ...order, addressLatLng: latlng });
+                        }}
+
+                    />
                 </div>
 
                 <div className={classes.bottons_container}>
