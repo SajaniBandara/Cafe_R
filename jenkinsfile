@@ -23,7 +23,7 @@ pipeline {
         }
         stage('Push Image') {
             steps {
-                bat 'docker push saja0217/Cafe:%BUILD_NUMBER%'
+                bat 'docker push saja0217/cafe:%BUILD_NUMBER%'
             }
         }
     }
