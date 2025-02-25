@@ -1,6 +1,6 @@
 pipeline {
     agent any 
-    
+
     stages { 
         stage('SCM Checkout') {
             steps {
@@ -9,26 +9,35 @@ pipeline {
                 }
             }
         }
-        stage('Build Docker Image') {
-            steps {  
-                bat 'docker build -t saja0217/Cafe:%BUILD_NUMBER% .'
+
+        stage('Build and Run Docker Compose') {
+            steps {
+                // Build and start containers using docker-compose
+                bat 'docker-compose up -d --build'
             }
         }
+
         stage('Login to Docker Hub') {
             steps {
-               withCredentials([string(credentialsId: 'dockerhubPassword', variable: 'DevopPass')]) {
-                   bat "docker login -u saja0217 -p %DevopPass%"
-                  }
+                withCredentials([string(credentialsId: 'dockerhubPassword', variable: 'DevopPass')]) {
+                    bat "docker login -u saja0217 -p %DevopPass%"
+                }
             }
         }
-        stage('Push Image') {
+
+        stage('Push Images') {
             steps {
-                bat 'docker push saja0217/cafe:%BUILD_NUMBER%'
+                // Push images for all services defined in docker-compose.yml
+                bat 'docker-compose push'
             }
         }
     }
+
     post {
         always {
+            // Stop and remove containers
+            bat 'docker-compose down'
+            // Logout from Docker Hub
             bat 'docker logout'
         }
     }
