@@ -1,7 +1,8 @@
 //sample data
+import mongoose from "mongoose";
 export const sample_foods = [
     {
-        id: "1",
+        id: new mongoose.Types.ObjectId(),
         name: 'Pizza',
         price: 10,
         cookTime: '10-20',
@@ -12,7 +13,7 @@ export const sample_foods = [
         tags: ['Lunch', 'FastFood', 'Pizza'],
     },
     {
-        id: "2",
+        id: new mongoose.Types.ObjectId(),
         name: 'Burger',
         price: 10,
         cookTime: '10-20',
@@ -23,7 +24,7 @@ export const sample_foods = [
         tags: ['Lunch', 'FastFood', 'Hamburger'],
     },
     {
-        id: "3",
+        id: new mongoose.Types.ObjectId(),
         name: 'Chicken Fried Rice',
         price: 10,
         cookTime: '20-30',
@@ -34,7 +35,7 @@ export const sample_foods = [
         tags: ['Dinner', 'Lunch', 'Rice', 'Chinese'],
     },
     {
-        id: "4",
+        id: new mongoose.Types.ObjectId(),
         name: 'Chicken Bacon Ranch Pasta',
         price: 10,
         cookTime: '20-30',
@@ -45,7 +46,7 @@ export const sample_foods = [
         tags: ['Lunch', 'Pasta'],
     },
     {
-        id: "5",
+        id: new mongoose.Types.ObjectId(),
         name: 'Croisants',
         price: 10,
         cookTime: '10-20',
@@ -71,7 +72,7 @@ export const sample_tags = [
 
 export const sample_users = [
     {
-        id: 1,
+        id: new mongoose.Types.ObjectId(),
         name: 'John Doe',
         email: 'john@gmail.com',
         password: '12345',
@@ -79,7 +80,7 @@ export const sample_users = [
         isAdmin: false,
     },
     {
-        id: 2,
+        id: new mongoose.Types.ObjectId(),
         name: 'sajani bandara',
         email: 'sajani@gmail.com',
         password: '12345',

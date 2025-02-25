@@ -1,0 +1,40 @@
+services:
+  # Database
+  mongo: 
+    image: mongo:latest  # Fix: Use correct image name
+    container_name: mongo_container
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+
+  # Backend Server
+  server: 
+    build: ./backend
+    container_name: server_container
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongo  
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/Cafe_R-db
+
+  # Frontend Client
+  client:
+    build: ./frontend
+    container_name: client_container
+    ports:
+      - "3000:3000"  
+    depends_on:
+      - server 
+    stdin_open: true
+    tty: true 
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  mongo_data:

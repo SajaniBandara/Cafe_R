@@ -4,28 +4,29 @@ import { FoodModel } from '../models/food.model.js';
 import { sample_users } from '../data.js';
 import { sample_foods } from '../data.js';
 import bcrypt from 'bcryptjs';
-const PASSWORD_HASH_SALT_ROUNDS = 10; // number of time to hash
+import mongoose from 'mongoose';
+
+const PASSWORD_HASH_SALT_ROUNDS = 10;
 set('strictQuery', true);
 export const dbconnect = async () => {
     try {
-        connect(process.env.MONGO_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
+        await mongoose.connect(process.env.MONGO_URI);
+
         await seedUsers();
         await seedFoods();
-        console.log('connect successfully---');
+
+        console.log('Connected successfully');
     } catch (error) {
-        console.log(error);
+        console.error('Database connection error:', error);
     }
 };
 async function seedUsers() {
     const usersCount = await UserModel.countDocuments();
-    if (usersCount > 0) { // check if seed is already done
+    if (usersCount > 0) {
         console.log('Users seed is already done!');
         return;
     }
-    for (let user of sample_users) { // otherwise we look through all sample users that coming from data.js
+    for (let user of sample_users) {
         user.password = await bcrypt.hash(user.password, PASSWORD_HASH_SALT_ROUNDS);
         await UserModel.create(user);
     }

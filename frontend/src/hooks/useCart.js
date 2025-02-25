@@ -73,6 +73,7 @@ export default function CartProvider({ children }) {
         setTotalCount(totalCount);
     };
 
+
     return (
         <CartContext.Provider
             value={{

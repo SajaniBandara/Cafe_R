@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import classes from './paymentPage.module.css';
 import { getNewOrderForCurrentUser } from '../../Services/orderService';
 import Title from '../../components/Title/Title';
@@ -6,16 +6,12 @@ import OrderItemsList from '../../components/OrderItems/OrderItemsList';
 import Map from '../../components/Map/Map';
 import PaypalButtons from '../../components/PaypalButtons/PaypalButtons';
 
-
 export default function PaymentPage() {
     const [order, setOrder] = useState();
-
     useEffect(() => {
         getNewOrderForCurrentUser().then(data => setOrder(data));
     }, []);
-
     if (!order) return;
-
     return (
         <>
             <div className={classes.container}>
@@ -33,12 +29,10 @@ export default function PaymentPage() {
                     </div>
                     <OrderItemsList order={order} />
                 </div>
-
                 <div className={classes.map}>
                     <Title title="Your Location" fontSize="1.6rem" />
                     <Map readonly={true} location={order.addressLatLng} />
                 </div>
-
                 <div className={classes.buttons_container}>
                     <div className={classes.buttons}>
                         <PaypalButtons order={order} />

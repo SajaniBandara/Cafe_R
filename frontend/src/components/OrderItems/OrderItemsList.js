@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Price from '../Price/Price';
 import classes from './orderItemList.module.css';
-
 export default function OrderItemsList({ order }) {
     return (
         <table className={classes.table}>
@@ -16,7 +15,7 @@ export default function OrderItemsList({ order }) {
                     <tr key={item.food.id}>
                         <td>
                             <Link to={`/food/${item.food.id}`}>
-                                <img src={item.food.imageUrl} alt={item.food.name} />
+                                <img src={item.food.imageUrl} />
                             </Link>
                         </td>
                         <td>{item.food.name}</td>
@@ -29,7 +28,6 @@ export default function OrderItemsList({ order }) {
                         </td>
                     </tr>
                 ))}
-
                 <tr>
                     <td colSpan="3"></td>
                     <td>

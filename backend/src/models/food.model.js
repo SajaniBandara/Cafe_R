@@ -1,5 +1,4 @@
 import { model, Schema } from 'mongoose';
-
 export const FoodSchema = new Schema(
     {
         name: { type: String, required: true },
@@ -21,5 +20,4 @@ export const FoodSchema = new Schema(
         timestamps: true,
     }
 );
-
 export const FoodModel = model('food', FoodSchema);
