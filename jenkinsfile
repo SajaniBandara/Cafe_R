@@ -5,7 +5,7 @@ pipeline {
         stage('SCM Checkout') {
             steps {
                 retry(3) {
-                    git branch: 'main', url: 'https://github.com/SajaniBandara/Cafe_R'
+                    git branch: 'main', url: 'https://SajaniBandara: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@github.com/SajaniBandara/Cafe_R'
                 }
             }
         }
