@@ -1,44 +1,48 @@
 pipeline {
-    agent any 
-
-    stages { 
-        stage('SCM Checkout') {
-            steps {
-                retry(3) {
-                    git branch: 'main', url: 'https://SajaniBandara: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@github.com/SajaniBandara/Cafe_R'
-                }
-            }
-        }
-
-        stage('Build and Run Docker Compose') {
-            steps {
-                // Build and start containers using docker-compose
-                bat 'docker-compose up -d --build'
-            }
-        }
-
-        stage('Login to Docker Hub') {
-            steps {
-                withCredentials([string(credentialsId: 'dockerhubPassword', variable: 'DevopPass')]) {
-                    bat "docker login -u saja0217 -p %DevopPass%"
-                }
-            }
-        }
-
-        stage('Push Images') {
-            steps {
-                // Push images for all services defined in docker-compose.yml
-                bat 'docker-compose push'
-            }
-        }
+    agent any
+    environment {
+        DOCKER_REGISTRY = "your-account-id.dkr.ecr.us-east-1.amazonaws.com"
+        APP_NAME = "cafe_r"
     }
-
-    post {
-        always {
-            // Stop and remove containers
-            bat 'docker-compose down'
-            // Logout from Docker Hub
-            bat 'docker logout'
+    stages {
+        // Stage 1: Build & Test
+        stage('Build') {
+            steps {
+                bat 'npm install --prefix ./frontend'
+                bat 'npm run build --prefix ./frontend'
+                bat 'npm install --prefix ./backend'
+            }
+        }
+        
+        // Stage 2: Test
+        stage('Test') {
+            steps {
+                bat 'docker run -d --name test-mongo -p 27017:27017 mongo'
+                bat 'npm test --prefix ./backend'
+                bat 'docker stop test-mongo && docker rm test-mongo'
+            }
+        }
+        
+        // Stage 3: Docker Build
+        stage('Docker Build') {
+            steps {
+                script {
+                    docker.build("${APP_NAME}-backend:${env.BUILD_NUMBER}", "./backend")
+                    docker.build("${APP_NAME}-frontend:${env.BUILD_NUMBER}", "./frontend")
+                }
+            }
+        }
+        
+        // Stage 4: Push to ECR
+        stage('Docker Push') {
+            steps {
+                script {
+                    docker.withRegistry("https://${DOCKER_REGISTRY}", 'ecr:us-east-1:aws-credentials') {
+                        docker.image("${APP_NAME}-backend:${env.BUILD_NUMBER}").push()
+                        docker.image("${APP_NAME}-frontend:${env.BUILD_NUMBER}").push()
+                    }
+                }
+            }
         }
     }
 }

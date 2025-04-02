@@ -28,7 +28,7 @@ export default function Header() {
                                 <div className={classes.menu}>
                                     <Link to="/profile">Profile</Link>
                                     <Link to="/orders">Orders</Link>
-                                    <button onClick={logout}>Logout</button>
+                                    <a onClick={logout}>Logout</a>
                                 </div>
 
                             </li> : (

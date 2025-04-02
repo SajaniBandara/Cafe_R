@@ -1,40 +1,40 @@
+version: '3.8'
+
 services:
-  # Database
-  mongo: 
-    image: mongo:latest  # Fix: Use correct image name
+  mongo:
+    image: mongo:latest
     container_name: mongo_container
-    volumes:
-      - mongo_data:/data/db
     ports:
       - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
 
-  # Backend Server
-  server: 
+  backend:
     build: ./backend
-    container_name: server_container
     ports:
-      - "5000:5000"
-    depends_on:
-      - mongo  
+      - "5001:5000"
     volumes:
       - ./backend:/app
       - /app/node_modules
     environment:
-      - MONGO_URI=mongodb://mongo:27017/Cafe_R-db
-
-  # Frontend Client
-  client:
-    build: ./frontend
-    container_name: client_container
-    ports:
-      - "3000:3000"  
+      - MONGO_URI=mongodb://root:example@mongo:27017/Cafe_R-db?authSource=admin
     depends_on:
-      - server 
-    stdin_open: true
-    tty: true 
+      - mongo
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - backend
 
 volumes:
   mongo_data:
