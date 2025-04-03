@@ -1,46 +1,41 @@
 pipeline {
     agent any
-    environment {
-        DOCKER_REGISTRY = "your-account-id.dkr.ecr.us-east-1.amazonaws.com"
-        APP_NAME = "cafe_r"
-    }
     stages {
-        // Stage 1: Build & Test
-        stage('Build') {
+        stage('Checkout') {
             steps {
-                bat 'npm install --prefix ./frontend'
-                bat 'npm run build --prefix ./frontend'
-                bat 'npm install --prefix ./backend'
+                git url: 'https://github.com/SajaniBandara/Cafe_R.git', branch: 'main', credentialsId: 'github-credentials'
             }
         }
-        
-        // Stage 2: Test
-        stage('Test') {
+        stage('Build Frontend') {
             steps {
-                bat 'docker run -d --name test-mongo -p 27017:27017 mongo'
-                bat 'npm test --prefix ./backend'
-                bat 'docker stop test-mongo && docker rm test-mongo'
-            }
-        }
-        
-        // Stage 3: Docker Build
-        stage('Docker Build') {
-            steps {
-                script {
-                    docker.build("${APP_NAME}-backend:${env.BUILD_NUMBER}", "./backend")
-                    docker.build("${APP_NAME}-frontend:${env.BUILD_NUMBER}", "./frontend")
+                dir('frontend') {
+                    sh 'npm install'  // Assumes Node.js frontend
+                    sh 'npm run build'
                 }
             }
         }
-        
-        // Stage 4: Push to ECR
-        stage('Docker Push') {
+        stage('Build Backend') {
             steps {
-                script {
-                    docker.withRegistry("https://${DOCKER_REGISTRY}", 'ecr:us-east-1:aws-credentials') {
-                        docker.image("${APP_NAME}-backend:${env.BUILD_NUMBER}").push()
-                        docker.image("${APP_NAME}-frontend:${env.BUILD_NUMBER}").push()
-                    }
+                dir('backend') {
+                    sh 'pip install -r requirements.txt'  // Assumes Python backend
+                }
+            }
+        }
+        stage('Docker Build & Push') {
+            steps {
+                sh 'docker build -t cafe-r:latest .'
+                withAWS(credentials: 'aws-credentials-id', region: 'us-east-1') {
+                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <your-ecr-repo-url>'
+                    sh 'docker tag cafe-r:latest <your-ecr-repo-url>:latest'
+                    sh 'docker push <your-ecr-repo-url>:latest'
+                }
+            }
+        }
+        stage('Deploy with Terraform') {
+            steps {
+                withAWS(credentials: 'aws-credentials-id', region: 'us-east-1') {
+                    sh 'terraform init'
+                    sh 'terraform apply -auto-approve'
                 }
             }
         }

@@ -5,36 +5,25 @@ services:
     image: mongo:latest
     container_name: mongo_container
     ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      - "27017:27017" # Expose MongoDB to host
 
-  backend:
+  server:
     build: ./backend
+    container_name: saja0217/cafe-r-backend:latest
     ports:
-      - "5001:5000"
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
+      - "5000:5000" # Key change: Map to same port internally/externally
     environment:
-      - MONGO_URI=mongodb://root:example@mongo:27017/Cafe_R-db?authSource=admin
+      - MONGO_URI=mongodb://mongo:27017/Cafe_R-db
     depends_on:
       - mongo
 
-  frontend:
+  client:
     build: ./frontend
+    container_name: saja0217/cafe-r-frontend:latest
     ports:
       - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
     environment:
-      - CHOKIDAR_USEPOLLING=true
+      - NODE_ENV=development # Force development mode
+      - REACT_APP_API_URL=http://localhost:5000 # Point to host's localhost
     depends_on:
-      - backend
-
-volumes:
-  mongo_data:
+      - server
