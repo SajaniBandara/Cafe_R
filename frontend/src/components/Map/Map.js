@@ -40,13 +40,14 @@ export default function Map({ readonly, location, onChange }) {
 function FindButtonAndMarker({ readonly, location, onChange }) {
     const [position, setPosition] = useState(location);
 
+    // filepath: frontend/src/components/Map/Map.js
     useEffect(() => {
         if (readonly) {
             map.setView(position, 13);
             return;
         }
         if (position) onChange(position);
-    }, [position]);
+    }, [map, onChange, position, readonly]);
 
     const map = useMapEvents({
         click(e) {

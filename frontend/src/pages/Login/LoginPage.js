@@ -20,7 +20,7 @@ export default function LoginPage() {
     useEffect(() => {
         if (!user) return;
         returnUrl ? navigate(returnUrl) : navigate('/');
-    }, [user]);
+    }, [user, navigate, returnUrl]);
     const submit = async ({ email, password }) => {
         await login(email, password);
     };
