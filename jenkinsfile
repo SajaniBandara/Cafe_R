@@ -1,10 +1,10 @@
 pipeline {
     agent any
     
-    environment {
-        AWS_DEFAULT_REGION = 'us-east-1'
-        ECR_REPO = '303530323583.dkr.ecr.us-east-1.amazonaws.com/cafe-r'
-    }
+    // environment {
+    //     AWS_DEFAULT_REGION = 'us-east-1'
+    //     ECR_REPO = '303530323583.dkr.ecr.us-east-1.amazonaws.com/cafe-r'
+    // }
     
     stages {
         stage('Checkout') {
@@ -16,8 +16,8 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 dir('frontend') {
-                    sh 'npm ci'  // More reliable than npm install
-                    sh 'npm run build'
+                    bat 'npm ci'  // More reliable than npm install
+                    bat 'npm run build'
                 }
             }
         }
@@ -25,18 +25,18 @@ pipeline {
         stage('Build Backend') {
             steps {
                 dir('backend') {
-                    sh 'python3 -m pip install --user -r requirements.txt'
+                    bat 'python -m pip install --user -r requirements.txt'
                 }
             }
         }
 
         stage('Docker Build & Push') {
             steps {
-                sh 'docker build -t cafe-r:latest .'
+                bat 'docker build -t cafe-r:latest .'
                 withAWS(credentials: 'aws-credentials-id', region: 'us-east-1') {
-                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ECR_REPO}'
-                    sh 'docker tag cafe-r:latest ${ECR_REPO}:latest'
-                    sh 'docker push ${ECR_REPO}:latest'
+                    bat 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin %ECR_REPO%'
+                    bat 'docker tag cafe-r:latest %ECR_REPO%:latest'
+                    bat 'docker push %ECR_REPO%:latest'
                 }
             }
         }
@@ -44,14 +44,14 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 sshagent(['ec2-ssh-credentials']) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no ec2-user@54.234.254.239 '
+                    bat '''
+                        ssh -o StrictHostKeyChecking=no ec2-user@54.234.254.239 "
                             docker stop cafe-r || true
                             docker rm cafe-r || true
-                            docker pull ${ECR_REPO}:latest
-                            docker run -d --name cafe-r -p 80:80 ${ECR_REPO}:latest
-                        '
-                    """
+                            docker pull %ECR_REPO%:latest
+                            docker run -d --name cafe-r -p 80:80 %ECR_REPO%:latest
+                        "
+                    '''
                 }
             }
         }
@@ -60,8 +60,8 @@ pipeline {
             steps {
                 dir('terraform') {
                     withAWS(credentials: 'aws-credentials-id', region: 'us-east-1') {
-                        sh 'terraform init -input=false'
-                        sh 'terraform apply -input=false -auto-approve'
+                        bat 'terraform init -input=false'
+                        bat 'terraform apply -input=false -auto-approve'
                     }
                 }
             }
